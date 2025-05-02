@@ -14,6 +14,7 @@
   padding: 0;
   box-sizing: border-box;
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -21,6 +22,7 @@ body {
   background-color: var(--dark-bg);
   color: var(--text-color);
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 /* Navigation */
@@ -29,9 +31,10 @@ body {
   top: 0;
   left: 0;
   width: 100%;
-  padding: 1.5rem 0;
+  padding: 1rem;
   background: rgba(30, 30, 44, 0.95);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   z-index: 1000;
   transition: all 0.3s ease;
 }
@@ -45,7 +48,7 @@ body {
 .nav-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -69,6 +72,7 @@ body {
   text-decoration: none;
   font-weight: 500;
   transition: color 0.3s ease;
+  font-size: 1rem;
 }
 
 .nav-links a:hover {
@@ -77,7 +81,7 @@ body {
 
 .resume-btn {
   background: var(--gradient);
-  padding: 0.8rem 1.5rem;
+  padding: 0.6rem 1.2rem;
   border-radius: 50px;
   color: white !important;
 }
@@ -87,6 +91,7 @@ body {
   font-size: 1.5rem;
   cursor: pointer;
   color: var(--text-color);
+  z-index: 1001;
 }
 
 /* Hero Section */
@@ -94,7 +99,7 @@ body {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  padding: 6rem 2rem 2rem;
+  padding: 5rem 1rem 2rem;
   position: relative;
 }
 
@@ -113,57 +118,62 @@ body {
 
 .greeting {
   color: var(--primary-color);
-  font-size: 1.2rem;
-  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
 }
 
 .name {
-  font-size: 4rem;
+  font-size: clamp(2.5rem, 8vw, 4rem);
   font-weight: 700;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   background: var(--gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  line-height: 1.2;
 }
 
 .title {
-  font-size: 3rem;
+  font-size: clamp(2rem, 6vw, 3rem);
   color: var(--accent-color);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  line-height: 1.2;
 }
 
 .bio {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #a0a0a0;
   max-width: 600px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .cta-buttons {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .primary-btn, .secondary-btn {
-  padding: 1rem 2rem;
+  padding: 0.8rem 1.5rem;
   border-radius: 50px;
   font-weight: 500;
   text-decoration: none;
   transition: transform 0.3s ease;
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .primary-btn {
   background: var(--gradient);
   color: white;
+  flex: 1;
+  min-width: 140px;
 }
 
 .secondary-btn {
   border: 2px solid var(--primary-color);
   color: var(--primary-color);
-}
-
-.primary-btn:hover, .secondary-btn:hover {
-  transform: translateY(-3px);
+  flex: 1;
+  min-width: 140px;
 }
 
 .hero-image {
@@ -174,8 +184,8 @@ body {
 }
 
 .profile-circle {
-  width: 400px;
-  height: 400px;
+  width: min(400px, 80vw);
+  height: min(400px, 80vw);
   border-radius: 50%;
   background: var(--card-bg);
   display: flex;
@@ -775,43 +785,108 @@ section {
 
   .nav-links {
     position: fixed;
-    top: 80px;
-    left: 0;
+    top: 0;
+    right: -100%;
+    height: 100vh;
     width: 100%;
     background: var(--dark-bg);
-    padding: 2rem;
     flex-direction: column;
-    align-items: center;
-    transform: translateY(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+    justify-content: center;
+    transition: 0.3s ease-in-out;
+    padding: 2rem;
   }
 
   .nav-links.active {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
+    right: 0;
   }
 
-  .hero-content {
-    flex-direction: column;
+  .nav-links a {
+    font-size: 1.2rem;
+    padding: 1rem;
+    width: 100%;
     text-align: center;
   }
 
-  .name {
-    font-size: 3rem;
+  .resume-btn {
+    width: 200px;
+    margin-top: 1rem;
   }
 
-  .title {
-    font-size: 2rem;
+  .hero-content {
+    flex-direction: column-reverse;
+    text-align: center;
+    padding: 0 1rem;
+  }
+
+  .hero {
+    padding-top: 4rem;
+  }
+
+  .bio {
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .cta-buttons {
     justify-content: center;
   }
 
+  .profile-circle {
+    margin-bottom: 2rem;
+  }
+
+  .profile-circle span {
+    font-size: clamp(4rem, 15vw, 8rem);
+  }
+}
+
+/* Small Screen Optimization */
+@media (max-width: 480px) {
+  .section-header h2 {
+    font-size: 1.8rem;
+  }
+
+  .section-header p {
+    font-size: 0.9rem;
+  }
+
+  .about-content {
+    padding: 0 1rem;
+  }
+
   .tech-icons {
-    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .tech-icons i {
+    font-size: 2rem;
+  }
+
+  .additional-skills .skills-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-card {
+    text-align: center;
+  }
+}
+
+/* Touch Device Optimization */
+@media (hover: none) {
+  .primary-btn:active,
+  .secondary-btn:active {
+    transform: scale(0.98);
+  }
+
+  .nav-links a:active {
+    color: var(--primary-color);
+  }
+}
+
+/* Ensure smooth scrolling on iOS */
+@supports (-webkit-touch-callout: none) {
+  .hero,
+  .section {
+    min-height: -webkit-fill-available;
   }
 }

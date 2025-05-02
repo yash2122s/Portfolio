@@ -1,10 +1,11 @@
 // Wait for the DOM to be fully loaded before running any scripts
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize AOS (Animate On Scroll)
+    // Initialize AOS (Animate On Scroll) with mobile-friendly settings
     AOS.init({
-        duration: 1000,
+        duration: 800,
         once: true,
-        offset: 100
+        offset: 50,
+        disable: 'mobile' // Disable animations on mobile for better performance
     });
 
     // Skill Progress Animation
@@ -30,45 +31,82 @@ document.addEventListener('DOMContentLoaded', function() {
         progressObserver.observe(bar);
     });
 
-    // Add hover effect to skill cards
-    const skillCards = document.querySelectorAll('.skill-card');
-    skillCards.forEach(card => {
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-5px)';
-        });
-        
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'translateY(0)';
-        });
-    });
-
-    // Mobile Menu Toggle
+    // Mobile Menu Toggle with improved touch handling
     const menuBtn = document.querySelector('.menu-btn');
     const navLinks = document.querySelector('.nav-links');
+    const menuIcon = menuBtn.querySelector('i');
+    let isMenuOpen = false;
+
+    function toggleMenu() {
+        isMenuOpen = !isMenuOpen;
+        navLinks.classList.toggle('active');
+        menuIcon.classList.toggle('fa-bars');
+        menuIcon.classList.toggle('fa-times');
+        
+        // Prevent body scroll when menu is open
+        document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    }
 
     if (menuBtn && navLinks) {
-        menuBtn.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
+        // Handle both click and touch events
+        menuBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleMenu();
         });
 
-        // Close mobile menu when clicking outside
+        // Close menu when clicking/touching outside
         document.addEventListener('click', (e) => {
-            if (!menuBtn.contains(e.target) && !navLinks.contains(e.target)) {
-                navLinks.classList.remove('active');
+            if (isMenuOpen && !menuBtn.contains(e.target) && !navLinks.contains(e.target)) {
+                toggleMenu();
             }
+        });
+
+        // Close menu when pressing Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isMenuOpen) {
+                toggleMenu();
+            }
+        });
+
+        // Handle touch events on nav links
+        const navItems = navLinks.querySelectorAll('a');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                if (isMenuOpen) {
+                    toggleMenu();
+                }
+            });
+
+            // Add touch feedback
+            item.addEventListener('touchstart', () => {
+                item.style.opacity = '0.7';
+            });
+
+            item.addEventListener('touchend', () => {
+                item.style.opacity = '1';
+            });
         });
     }
 
-    // Smooth scroll for navigation links
+    // Improved Smooth scroll for navigation with touch handling
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
-                navLinks.classList.remove('active'); // Close mobile menu after clicking
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+                // Close mobile menu if open
+                if (isMenuOpen) {
+                    toggleMenu();
+                }
+                
+                // Smooth scroll with offset for header
+                const headerOffset = 60;
+                const elementPosition = target.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
                 });
             }
         });
@@ -101,29 +139,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Sticky Navigation with hide on scroll down
+    // Improved Sticky Navigation with better performance
     const navbar = document.querySelector('.navbar');
     let lastScroll = 0;
+    let scrollTimeout;
 
     if (navbar) {
         window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-            
-            if (currentScroll > 50) {
-                navbar.classList.add('sticky');
-                
-                // Hide navbar on scroll down, show on scroll up
-                if (currentScroll > lastScroll) {
-                    navbar.style.transform = 'translateY(-100%)';
-                } else {
-                    navbar.style.transform = 'translateY(0)';
-                }
-            } else {
-                navbar.classList.remove('sticky');
+            // Throttle scroll events for better performance
+            if (!scrollTimeout) {
+                scrollTimeout = setTimeout(() => {
+                    const currentScroll = window.pageYOffset;
+                    
+                    if (currentScroll > 50) {
+                        navbar.classList.add('sticky');
+                        
+                        // Only hide navbar if menu is closed
+                        if (!isMenuOpen) {
+                            if (currentScroll > lastScroll && currentScroll > 300) {
+                                navbar.style.transform = 'translateY(-100%)';
+                            } else {
+                                navbar.style.transform = 'translateY(0)';
+                            }
+                        }
+                    } else {
+                        navbar.classList.remove('sticky');
+                    }
+                    
+                    lastScroll = currentScroll;
+                    scrollTimeout = null;
+                }, 50);
             }
-            
-            lastScroll = currentScroll;
-        });
+        }, { passive: true }); // Add passive flag for better scroll performance
     }
 
     // Typing Animation for Hero Section
@@ -218,5 +265,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add loading animation
     window.addEventListener('load', () => {
         document.body.classList.add('loaded');
+    });
+
+    // Handle device orientation changes
+    window.addEventListener('orientationchange', () => {
+        // Reset any necessary styles or states
+        if (isMenuOpen) {
+            toggleMenu();
+        }
+        
+        // Force AOS to refresh
+        setTimeout(() => {
+            AOS.refresh();
+        }, 100);
+    });
+
+    // Add touch ripple effect to buttons
+    const buttons = document.querySelectorAll('.primary-btn, .secondary-btn');
+    buttons.forEach(button => {
+        button.addEventListener('touchstart', (e) => {
+            const rect = button.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            ripple.style.left = `${e.touches[0].clientX - rect.left}px`;
+            ripple.style.top = `${e.touches[0].clientY - rect.top}px`;
+            button.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 1000);
+        });
     });
 }); 
